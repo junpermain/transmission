@@ -1,0 +1,36 @@
+name: Transmission Windows Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          choco install -y cmake
+          choco install -y make
+          choco install -y mingw
+          choco install -y qt5
+
+      - name: Configure Transmission
+        run: |
+          cmake -B build -S . -G "MinGW Makefiles"
+
+      - name: Compile Transmission
+        run: |
+          cmake --build build --config Release
+
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: transmission-windows-build
+          path: build/
