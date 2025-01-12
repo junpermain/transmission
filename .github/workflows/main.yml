@@ -1,0 +1,34 @@
+name: Transmission Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential checkinstall intltool libcurl4-openssl-dev libevent-dev libminiupnpc-dev libnatpmp-dev libzen-dev pkg-config qtbase5-dev qttools5-dev-tools
+
+      - name: Configure Transmission
+        run: |
+          ./configure --enable-lightweight
+
+      - name: Compile Transmission
+        run: |
+          make -j$(nproc)
+
+      - name: Archive build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: transmission-build
+          path: transmission/build/
